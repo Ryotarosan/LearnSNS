@@ -1,6 +1,8 @@
 <?php
     session_start();
-
+//外部ファイルに読み込み
+    require("../dbconnect.php");
+// 直接check.phpにアクセスしたときsession変数に保存された値がないためsignup.phpに直接リダイレクトする
      if (!isset($_SESSION['register'])) {
         header('Location: signup.php');
         exit();
@@ -11,6 +13,24 @@
     $email = $_SESSION['register']['email'];
     $password = $_SESSION['register']['password'];
     $img_name = $_SESSION['register']['img_name'];
+    // 登録ボタンが押されたときのみ処理する
+    if (!empty($_POST)) {
+//SQL文実行
+      $sql ="INSERT INTO `users` SET `name`=?, `email`=?, `password`=?, `img_name`=?, `created`=NOW()";
+      $data =array($name,$email,password_hash($password,PASSWORD_DEFAULT),$img_name);
+      $stmt = $dbh->prepare($sql);
+
+      // $stmt = $dbh ->prepare($sql);
+      $stmt->execute($data);
+ // DB切断　（最近は切断しなくてもサーバーが強いのであまり問題ない）
+      $dbh = null;
+
+      unset($_SESSION['register']);
+
+      header("Location: thanks.php");
+      exit();
+    }
+
 ?>
 <!DOCTYPE html>
 <html lang="ja">
