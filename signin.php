@@ -1,4 +1,5 @@
 <?php
+session_start();
     // サインイン処理
 // DB接続　外部ファイルから読み込み
 
@@ -23,6 +24,7 @@ if (!empty($_POST)) {
 
           // データを配列として格納
           $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
             // 一件も取得できなかったとき
           if ($record == false) {
             // 認証失敗（DBにemailが見つからなかった）
@@ -31,6 +33,13 @@ if (!empty($_POST)) {
               // emailは登録されていた
               if(password_verify($password,$record['password'])){
                 //認証成功
+                // SESSIONにID保存
+                $_SESSION['ID'] =$record['id'];
+                // timeline.phpに移動
+                header('Location: timeline.php');
+
+
+
               }else{
                 // 認証失敗
                 $errors['signin'] = 'failed';
