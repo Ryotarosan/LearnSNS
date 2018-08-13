@@ -34,7 +34,7 @@ if (!empty($_POST)) {
               if(password_verify($password,$record['password'])){
                 //認証成功
                 // SESSIONにID保存
-                $_SESSION['ID'] =$record['id'];
+                $_SESSION['id'] =$record['id'];
                 // timeline.phpに移動
                 header('Location: timeline.php');
 
