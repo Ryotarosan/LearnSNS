@@ -137,8 +137,10 @@ $sql = 'SELECT `f`.*, `u`.`name`, `u`.`img_name` FROM `feeds` AS `f` LEFT JOIN `
                 </form>
                 <span class="like_count">いいね数 : 100</span>
                 <span class="comment_count">コメント数 : 9</span>
-                  <a href="#" class="btn btn-success btn-xs">編集</a>
-                  <a href="#" class="btn btn-danger btn-xs">削除</a>
+              <?php if ($_SESSION['id'] == $feed['user_id']){ ?>
+                  <a href="edit.php?feed_id=<?php echo $feed['id'];?>" class="btn btn-success btn-xs">編集</a>
+                  <a href="delete.php?feed_id=<?php echo $feed['id'];?>"  onclick="return confirm('ほんとにけすの？');" class ="btn btn-danger btn-xs">削除</a>
+                  <?php }?>
               </div>
             </div>
           </div>
