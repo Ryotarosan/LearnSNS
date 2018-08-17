@@ -13,6 +13,36 @@ require('dbconnect.php');
     // var_dump($signin_user);
  
     $errors = array();
+const CONTENT_PER_PAGE = 5;
+
+// 何ページ目かを取得する。
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+} else {
+    $page = 1;
+}
+
+   // -1などのページ数として不正な値を渡された場合の対策
+    $page = max($page, 1);
+ 
+    // ヒットしたレコードの数を取得するSQL
+    $sql_count = "SELECT COUNT(*) AS `cnt` FROM `feeds`";
+ 
+    $stmt_count = $dbh->prepare($sql_count);
+    $stmt_count->execute();
+ 
+    $record_cnt = $stmt_count->fetch(PDO::FETCH_ASSOC);
+ 
+    // 取得したページ数を1ページあたりに表示する件数で割って何ページが最後になるか取得
+   $last_page = ceil($record_cnt['cnt'] / CONTENT_PER_PAGE);
+   // ceil()　()内の少雨数点を切り上げる
+ 
+    // 最後のページより大きい値を渡された場合の対策
+    $page = min($page, $last_page);
+ 
+    $start = ($page - 1) * CONTENT_PER_PAGE;
+
+
 if(!empty($_POST )){
 $feed = $_POST['feed']; 
 if($feed==''){
@@ -28,7 +58,7 @@ $errors['feed']='blank';
     }
 }
 // post送信されたらというif文の終わり
-    $sql = 'SELECT `f`.*, `u`.`name`, `u`.`img_name` FROM `feeds` AS `f` LEFT JOIN `users` AS `u` ON `f`.`user_id`=`u`.`id` ORDER BY `created` DESC';
+$sql = 'SELECT `f`.*, `u`.`name`, `u`.`img_name` FROM `feeds` AS `f` LEFT JOIN `users` AS `u` ON `f`.`user_id`=`u`.`id` ORDER BY `created` DESC LIMIT '. CONTENT_PER_PAGE .' OFFSET ' . $start;
     $data = array();
     $stmt = $dbh->prepare($sql);
     $stmt->execute($data);
@@ -112,11 +142,20 @@ $errors['feed']='blank';
               </div>
             </div>
           </div>
-          <?php } ?>
+ <?php } ?>
         <div aria-label="Page navigation">
           <ul class="pager">
-            <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
-            <li class="next"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
+            <?php if ($page == 1): ?>
+                <li class="previous disabled"><a><span aria-hidden="true">&larr;</span> Newer</a></li>
+            <?php else: ?>
+                <li class="previous"><a href="timeline.php?page=<?= $page - 1; ?>"><span aria-hidden="true">&larr;</span> Newer</a></li>
+            <?php endif; ?>
+
+            <?php if ($page == $last_page): ?>
+                <li class="next disabled"><a>Older <span aria-hidden="true">&rarr;</span></a></li>
+            <?php else: ?>
+                <li class="next"><a href="timeline.php?page=<?= $page + 1; ?>">Older <span aria-hidden="true">&rarr;</span></a></li>
+            <?php endif; ?>
           </ul>
         </div>
       </div>
